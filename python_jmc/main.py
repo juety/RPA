@@ -22,7 +22,6 @@ if uploaded_file is not None:
     ext = uploaded_file.name.split('.')[0]
     if option == "표 보기":
         if df is not None:
-            st.dataframe(df)
             target_columns = [df.columns[i] for i in [0, 1]]
             # 선택 필터 UI 만들기
             selections = {}
