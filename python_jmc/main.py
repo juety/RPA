@@ -20,11 +20,10 @@ uploaded_file = st.file_uploader("파일 선택(csv or excel)", type=['csv', 'xl
 if uploaded_file is not None:
     df = pd.read_excel(uploaded_file)
     ext = uploaded_file.name.split('.')[0]
-    st.title(f"{ext} 시각화")
     if option == "표 보기":
         if df is not None:
             st.dataframe(df)
-            target_columns = [df.columns[i] for i in [0, 1, 6, 7]]
+            target_columns = [df.columns[i] for i in [0, 1]]
             # 선택 필터 UI 만들기
             selections = {}
             st.title(f"{ext} 검색기")
