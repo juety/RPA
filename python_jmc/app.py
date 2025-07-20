@@ -44,10 +44,9 @@ if uploaded_file is not None:
             st.markdown("---")
             st.subheader("날짜 범위로 필터링")
 
-            # 날짜형 컬럼 추출
+            # 날짜형 컬럼 자동 감지
             date_columns = [col for col in df.columns if pd.api.types.is_datetime64_any_dtype(df[col])]
             if not date_columns:
-                # 날짜 컬럼이 datetime 타입이 아니면 자동으로 변환 시도
                 for col in df.columns:
                     try:
                         df[col] = pd.to_datetime(df[col])
@@ -55,24 +54,39 @@ if uploaded_file is not None:
                     except:
                         continue
 
-            if date_columns:
-                date_col = date_columns[1]  # 두 번째 날짜 컬럼 자동 선택
+            # "시작" / "종료" 키워드로 컬럼 이름 자동 추정
+            start_col = None
+            end_col = None
+            for col in date_columns:
+                if '시작' in col:
+                    start_col = col
+                elif '종료' in col:
+                    end_col = col
 
-                min_date = df[date_col].min().date()
-                max_date = df[date_col].max().date()
+            # 필터링 실행
+            if start_col and end_col:
+                filtered_df[start_col] = pd.to_datetime(filtered_df[start_col], errors='coerce')
+                filtered_df[end_col] = pd.to_datetime(filtered_df[end_col], errors='coerce')
+                filtered_df = filtered_df.dropna(subset=[start_col, end_col])
 
-                start_date = st.date_input("시작일 선택", min_value=min_date, max_value=max_date, value=min_date)
-                end_date = st.date_input("종료일 선택", min_value=min_date, max_value=max_date, value=max_date)
+                min_date = filtered_df[start_col].min().date()
+                max_date = filtered_df[end_col].max().date()
 
-                if start_date > end_date:
+                user_start = st.date_input("시작일 선택", value=min_date, key="user_start")
+                user_end = st.date_input("종료일 선택", value=max_date, key="user_end")
+
+                if user_start > user_end:
                     st.error("시작일은 종료일보다 이전이어야 합니다.")
                 else:
-                # 날짜 변환 (filtered_df에도 적용)
-                    filtered_df[date_col] = pd.to_datetime(filtered_df[date_col], errors='coerce')
-                    filtered_df = filtered_df.dropna(subset=[date_col])
-
-                mask = (filtered_df[date_col].dt.date >= start_date) & (filtered_df[date_col].dt.date <= end_date)
-                filtered_df = filtered_df[mask]
+                    # 당신의 의도대로 row가 기간 안에 **완전히 포함된** 경우만 필터
+                    mask = (
+                        filtered_df[start_col].dt.date >= user_start
+                    ) & (
+                        filtered_df[end_col].dt.date <= user_end
+                    )
+                    filtered_df = filtered_df[mask]
+            else:
+                st.warning("'시작' 또는 '종료'가 포함된 날짜 컬럼명이 존재하지 않습니다.")
 
             # 결과 출력
             st.subheader("검색 결과")
