@@ -56,7 +56,7 @@ if uploaded_file is not None:
                         continue
 
             if date_columns:
-                date_col = st.selectbox("날짜 컬럼을 선택하세요", date_columns)
+                date_col = date_columns[1]  # 두 번째 날짜 컬럼 자동 선택
 
                 min_date = df[date_col].min().date()
                 max_date = df[date_col].max().date()
