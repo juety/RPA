@@ -79,6 +79,6 @@ def create_calendar_events(df):
             "종료일": row.get("종료일", ""),
             "장소": row.get("장소", "미정"),
             "기관명": row.get("기관명", "미정"),
-             "이용요금": row["이용요금"] if pd.notna(row["이용요금"]) else "정보 없음"
+            "이용요금": row["이용요금"] if pd.notna(row["이용요금"]) else "정보 없음"
         }
     return events, event_map
