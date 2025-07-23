@@ -170,15 +170,15 @@ if uploaded_file is not None:
                     - **기관명**: {detail['기관명']}
                     - **이용요금**: {detail.get('이용요금') or "정보 없음"}
                     """)
-                    if "위도(Y좌표)" in df.columns and "경도(X좌표)" in df.columns:
-                        df = df.rename(columns={
+                    if "위도(Y좌표)" in filtered_df.columns and "경도(X좌표)" in filtered_df.columns:
+                        filtered_df = filtered_df.rename(columns={
                             '위도(Y좌표)': 'latitude',
                             '경도(X좌표)': 'longitude'
                         })
-                        df = df.dropna(subset=['latitude', 'longitude'])
+                        filtered_df = filtered_df.dropna(subset=['latitude', 'longitude'])
 
                         # 선택된 행사 위치만 필터링
-                        map_df = df[df['공연/행사명'] == detail['공연/행사명']]
+                        map_df = filtered_df[filtered_df['공연/행사명'] == detail['공연/행사명']]
                             
                         if not map_df.empty:
                             lat = map_df.iloc[0]['latitude']
