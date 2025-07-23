@@ -1,17 +1,9 @@
 import streamlit as st
 import pandas as pd
-from data_processing import (
-    detect_and_convert_date_columns,
-    find_start_end_columns,
-    apply_filters,
-    apply_date_range_filter,
-    get_date_limits,
-)
 from streamlit_calendar import calendar
 from streamlit_folium import st_folium
 import folium
 from folium import Icon
-
 from data_processing import (
     detect_and_convert_date_columns,
     find_start_end_columns,
