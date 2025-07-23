@@ -4,6 +4,7 @@ from streamlit_calendar import calendar
 from streamlit_folium import st_folium
 import folium
 from folium import Icon
+
 from data_processing import (
     detect_and_convert_date_columns,
     find_start_end_columns,
@@ -114,7 +115,7 @@ if uploaded_file:
                 - **기간**: {detail['시작일']} ~ {detail['종료일']}
                 - **장소**: {detail['장소']}
                 - **기관명**: {detail['기관명']}
-                - **이용요금**: {detail.get('이용요금') or "정보 없음"}
+                - **이용요금**: {detail['이용요금']}
                 """)
 
                 if "위도(Y좌표)" in df.columns and "경도(X좌표)" in df.columns:
