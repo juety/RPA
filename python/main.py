@@ -77,11 +77,14 @@ if uploaded_file:
         selected_category = st.sidebar.selectbox("분류 선택", category_list)
         selected_gu       = st.sidebar.selectbox("자치구 선택", gu_list)
 
-        # 데이터 필터링
-        calendar_df = get_filtered_calendar_df(df.copy(), selected_category, selected_gu)
-        events, event_map = create_calendar_events(calendar_df)
-
-        st.markdown(f"**총 {len(events)}건의 결과가 표시됩니다.**")
+        # 데이터 필터링 조건 확인
+        if selected_category == "전체" and selected_gu == "전체":
+            st.info("🔍 좌측 필터를 사용해 '분류' 또는 '자치구'를 선택하면 행사들이 캘린더에 표시됩니다.")
+            events, event_map = [], {}
+        else:
+            calendar_df = get_filtered_calendar_df(df.copy(), selected_category, selected_gu)
+            events, event_map = create_calendar_events(calendar_df)
+            st.markdown(f"**총 {len(events)}건의 결과가 표시됩니다.**")
 
         # 캘린더 렌더링
         calendar_options = {
