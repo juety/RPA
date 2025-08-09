@@ -5,15 +5,7 @@ from streamlit_folium import st_folium
 import folium
 from folium import Icon
 
-from data_processing import (
-    detect_and_convert_date_columns,
-    find_start_end_columns,
-    apply_filters,
-    apply_date_range_filter,
-    get_date_limits,
-    get_filtered_calendar_df,
-    create_calendar_events,
-)
+from data_processing import *
 
 st.set_page_config(page_title="데이터 가공", page_icon=":page_with_curl:", layout="wide")
 
@@ -31,17 +23,17 @@ if uploaded_file:
         st.title(f"{ext} 검색기")
 
         # ── (1) 문자열 기준 필터 UI ──
+        st.sidebar.subheader("🔍 문자열 기준 필터")
         target_cols = [df.columns[i] for i in [0, 1]]
         selections = {
-            col: st.selectbox(f"{col} 선택", ["전체"] + sorted(df[col].dropna().astype(str).unique()))
+            col: st.sidebar.selectbox(f"{col} 선택", ["전체"] + sorted(df[col].dropna().astype(str).unique()))
             for col in target_cols
         }
-
         filtered_df = apply_filters(df, selections)
 
         # ── (2) 날짜 범위 필터 UI ──
-        st.markdown("---")
-        st.subheader("날짜 범위로 필터링")
+        st.sidebar.markdown("---")
+        st.sidebar.subheader("📅 날짜 범위로 필터링")
 
         df, date_cols          = detect_and_convert_date_columns(df)
         start_col, end_col     = find_start_end_columns(date_cols)
@@ -49,10 +41,10 @@ if uploaded_file:
         if start_col and end_col:
             min_date, max_date = get_date_limits(df, start_col, end_col)
 
-            user_start = st.date_input("시작일 선택", value=min_date,
+            user_start = st.sidebar.date_input("시작일 선택", value=min_date,
                                        min_value=min_date, max_value=max_date, key="user_start")
-            user_end   = st.date_input("종료일 선택", value=max_date,
-                                       min_value=min_date, max_value=max_date, key="user_end")
+            user_end = st.sidebar.date_input("종료일 선택", value=max_date,
+                                     min_value=min_date, max_value=max_date, key="user_end")
 
             if user_start > user_end:
                 st.error("시작일은 종료일보다 이전이어야 합니다.")
@@ -64,7 +56,8 @@ if uploaded_file:
 
         # ── (3) 결과 출력 ──
         st.subheader("검색 결과")
-        st.dataframe(filtered_df.reset_index(drop=True))
+        st.markdown(f"**총 {len(filtered_df)}건의 결과가 표시됩니다.**")
+        st.dataframe(filtered_df, hide_index=True)
 
     elif option == "캘린더 보기":
         st.title(f"📅 {ext} 캘린더")
