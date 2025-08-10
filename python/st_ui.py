@@ -18,6 +18,10 @@ def load_file(file):
 def table_view(df):
     st.title(f"{st.session_state['file_name']} 검색기")
 
+    #표 보기 전용: A,B,C,D,E,G,H 열만 추출
+    keep_cols_idx = [0, 1, 2, 3, 4, 6, 7]  # A=0, B=1, C=2, D=3, E=4, G=6, H=7
+    keep_cols = [df.columns[i] for i in keep_cols_idx if i < len(df.columns)]
+    df = df[keep_cols]
     # 문자열 기준 필터
     st.sidebar.subheader("🔍 문자열 기준 필터")
     target_cols = [df.columns[i] for i in [0, 1]]
