@@ -18,18 +18,23 @@ def load_file(file):
 def table_view(df):
     st.title(f"{st.session_state['file_name']} 검색기")
 
-    #표 보기 전용: A,B,C,D,E,G,H,P,O 열만 추출
-    keep_cols_idx = [0, 1, 2, 3, 4, 6, 7, 15, 16]  # A=0, B=1, C=2, D=3, E=4, G=6, H=7
+    # 표 보기 전용: A,B,C,D,E,G,H,P,O 열만 추출
+    keep_cols_idx = [0, 1, 2, 3, 4, 6, 7, 15, 16]
     keep_cols = [df.columns[i] for i in keep_cols_idx if i < len(df.columns)]
     df = df[keep_cols]
-    # 문자열 기준 필터
+
+    # 문자열 기준 필터 (좌우 배치)
     st.sidebar.subheader("🔍 문자열 기준 필터")
     target_cols = [df.columns[i] for i in [0, 1]]
-    selections = {
-        col: st.sidebar.selectbox(f"{col} 선택", ["전체"] + sorted(df[col].dropna().astype(str).unique()),
-                                  index=0, key=f"filter_{col}")
-        for col in target_cols
-    }
+    col1, col2 = st.sidebar.columns(2)
+    selections = {}
+    for idx, col in enumerate(target_cols):
+        with (col1 if idx == 0 else col2):
+            selections[col] = st.selectbox(
+                f"{col}", ["전체"] + sorted(df[col].dropna().astype(str).unique()),
+                index=0, key=f"filter_{col}"
+            )
+
     filtered_df = apply_filters(df, selections)
 
     # 날짜 필터
@@ -40,10 +45,13 @@ def table_view(df):
 
     if start_col and end_col:
         min_date, max_date = get_date_limits(df, start_col, end_col)
-        user_start = st.sidebar.date_input("시작일 선택", value=min_date, 
-                                           min_value=min_date, max_value=max_date, key="user_start")
-        user_end = st.sidebar.date_input("종료일 선택", value=max_date, 
-                                         min_value=min_date, max_value=max_date, key="user_end")
+        dcol1, dcol2 = st.sidebar.columns(2)
+        with dcol1:
+            user_start = st.date_input("시작일", value=min_date, 
+                                       min_value=min_date, max_value=max_date, key="user_start")
+        with dcol2:
+            user_end = st.date_input("종료일", value=max_date, 
+                                     min_value=min_date, max_value=max_date, key="user_end")
 
         if user_start > user_end:
             st.error("시작일은 종료일보다 이전이어야 합니다.")
@@ -61,11 +69,14 @@ def calendar_view(df):
     st.title(f"📅 {st.session_state['file_name']} 캘린더")
 
     st.sidebar.header("🎯 검색 필터")
+    col1, col2 = st.sidebar.columns(2)  # 좌우 배치
     category_list = ["전체"] + sorted(df["분류"].dropna().unique().tolist())
     gu_list = ["전체"] + sorted(df["자치구"].dropna().unique().tolist())
 
-    selected_category = st.sidebar.selectbox("분류 선택", category_list, key="selected_category")
-    selected_gu = st.sidebar.selectbox("자치구 선택", gu_list, key="selected_gu")
+    with col1:
+        selected_category = st.selectbox("분류", category_list, key="selected_category")
+    with col2:
+        selected_gu = st.selectbox("자치구", gu_list, key="selected_gu")
 
     if selected_category == "전체" and selected_gu == "전체":
         st.info("🔍 좌측 필터를 사용해 '분류' 또는 '자치구'를 선택하면 행사들이 캘린더에 표시됩니다.")
